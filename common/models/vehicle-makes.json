@@ -1,0 +1,62 @@
+{
+  "name": "vehicle_makes",
+  "plural": "makes",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "_id": {
+      "type": "string",
+      "id": true,
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "is_hidden": {
+      "type": "boolean",
+      "required": true,
+      "default": true
+    },
+    "is_in_navigation": {
+      "type": "boolean",
+      "required": true,
+      "default": false
+    },
+    "ads": {
+      "type": "object"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "make": {
+      "type": "hasMany",
+      "model": "vehicle_model",
+      "foreignKey": "make"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$unauthenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    }
+  ],
+  "methods": {}
+}

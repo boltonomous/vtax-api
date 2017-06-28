@@ -1,0 +1,7 @@
+{
+  "db": {
+    "url": "mongodb://localhost:27017/?3t.uriVersion=2&3t.connection.name=Localhost+-+imported+on+Aug+29%2C+2016&3t.connectionMode=direct&readPreference=primary",
+    "name": "db",
+    "connector": "loopback-connector-mongodb"
+  }
+}

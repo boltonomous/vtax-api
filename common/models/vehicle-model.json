@@ -1,0 +1,68 @@
+{
+  "name": "vehicle_model",
+  "plural": "models",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "_id": {
+      "type": "string",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "is_hidden": {
+      "type": "boolean",
+      "required": true,
+      "default": true
+    },
+    "is_in_navigation": {
+      "type": "boolean",
+      "required": true,
+      "default": false
+    },
+    "make": {
+      "type": "string",
+      "required": true
+    },
+    "ratings": {
+      "type": "object"
+    },
+    "price": {
+      "type": "object"
+    },
+    "chrome_model_id": {
+      "type": "number"
+    },
+    "years": {
+      "type": "object"
+    },
+    "primary_submodel": {
+      "type": "string"
+    },
+    "generations": {
+      "type": [
+        "object"
+      ],
+      "default": []
+    }
+  },
+  "validations": [],
+  "relations": {
+    "submodel": {
+      "type": "embedsMany",
+      "model": "vehicle-submodel",
+      "property": "submodels",
+      "options": {
+        "validate": true,
+        "forceId": false
+      }
+    }
+  },
+  "acls": [],
+  "methods": {}
+}
