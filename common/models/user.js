@@ -1,8 +1,9 @@
 'use strict';
 var request = require('request');
+var config = require('../../config.json');
 
-var authDomain = 'https://stage-rover.mediaos.hearst.io';
-var clientId = 142235;
+var authDomain = config.authDomain;
+var clientId = config.clientId;
 var accessToken;
 var refreshToken;
 var expiresIn;
