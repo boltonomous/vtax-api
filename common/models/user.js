@@ -4,9 +4,6 @@ var config = require('../../config.json');
 
 var authDomain = config.authDomain;
 var clientId = config.clientId;
-var accessToken;
-var refreshToken;
-var expiresIn;
 
 /**
  * Rover user info for testing purposes -
@@ -73,13 +70,14 @@ module.exports = function(User) {
       }
     };
 
+    // @todo Add functionality to get refresh token before this point
     var refreshTokenOptions = {
       url: authDomain + '/openid/token',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       form: {
-        refresh_token: refreshToken,
+        refresh_token: '', // refresh token goes here
         client_id: clientId,
         grant_type: 'refresh_token'
       }
@@ -92,11 +90,8 @@ module.exports = function(User) {
     request.post(options, function (error, response, body) {
       User.consoleInfo(error, response, body);
 
-      var tokenInfo = JSON.parse(body);
-
-      accessToken = tokenInfo.access_token;
-      refreshToken = tokenInfo.refresh_token;
-      expiresIn = tokenInfo.expires_in;
+      var data = JSON.parse(body);
+      var accessToken = data.access_token;
 
       if (!accessToken) {
         // send 'status: denied' response object to loopback
