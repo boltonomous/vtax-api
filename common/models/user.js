@@ -87,7 +87,7 @@ module.exports = function(User) {
       ? refreshTokenOptions
       : newAccessTokenOptions;
 
-    request.post(options, function (error, response, body) {
+    request.post(newAccessTokenOptions, function (error, response, body) {
       User.consoleInfo(error, response, body);
 
       var data = JSON.parse(body);
@@ -95,7 +95,7 @@ module.exports = function(User) {
 
       if (!accessToken) {
         // send 'status: denied' response object to loopback
-        callback(null, {status: 'Denied.'});
+        callback(null, {status: 'denied'});
         return;
       }
 

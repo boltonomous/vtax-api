@@ -1,0 +1,12 @@
+{
+  "rules": {
+    "indent": ["error",2],
+    "no-redeclare": 2,
+    "no-eval": 2,
+    "no-unreachable": 2,
+    "comma-dangle": ["error","never"],
+    "no-irregular-whitespace": 2,
+    "eqeqeq": 2,
+    "jsx-quotes": ["error", "prefer-single"],
+    "one-var": 0  }
+}
