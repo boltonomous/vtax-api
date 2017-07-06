@@ -16,6 +16,9 @@ var expiresIn;
 
 module.exports = function(User) {
 
+  /**
+   * Initial method called when the /users/rover-user endpoint is posted
+   */
   User.remoteMethod('authenticateUser', {
     accepts: [
       { arg: 'email', type: 'string', description: 'rover email address' },
@@ -25,16 +28,38 @@ module.exports = function(User) {
     http: { path: '/rover-user', verb: 'post' }
   });
 
-  User.authenticateUser = function (email, password, cb) {
+  /**
+   * Authenticate Rover: Takes in email and password and confirms
+   * whether or not it matches a user in Rover.
+   *
+   * Function called by remoteMethod()
+   *
+   * @param email: string
+   * @param password: string
+   * @param callback: function
+   */
+  User.authenticateUser = function (email, password, callback) {
     if (!email || !password) {
-      cb(null, 'Email and or Password properties are missing');
+      // send response string to loopback notifying user they are missing
+      // an email and or password
+      callback(null, 'Email and or Password properties are missing');
       return;
     }
 
-    User.getAccessTokenFromRover(null, email, password, cb);
+    User.getAccessTokenFromRover(null, email, password, callback);
   };
 
-  User.getAccessTokenFromRover = function(type, email, password, cb) {
+  /**
+   * Makes an api call to rover in order to get a user token,
+   * and then takes that user token and retrieves user information based
+   * on the email and password passed into the function.
+   *
+   * @param type: string
+   * @param email: string
+   * @param password: string
+   * @param callback: function
+   */
+  User.getAccessTokenFromRover = function(type, email, password, callback) {
     var newAccessTokenOptions = {
       url: authDomain + '/openid/token',
       form: {
@@ -73,15 +98,23 @@ module.exports = function(User) {
       expiresIn = tokenInfo.expires_in;
 
       if (!accessToken) {
-        cb(null, {status: 'Denied.'});
+        // send 'status: denied' response object to loopback
+        callback(null, {status: 'Denied.'});
         return;
       }
 
-      User.retrieveUserInfo(accessToken, cb);
+      User.retrieveUserInfo(accessToken, callback);
     });
   };
 
-  User.retrieveUserInfo = function(accessToken, cb) {
+  /**
+   * Takes in an access token, and uses it to make an api call to rover
+   * to retrieve a user's information
+   *
+   * @param accessToken: string
+   * @param callback: function
+   */
+  User.retrieveUserInfo = function(accessToken, callback) {
     var options = {
       url: authDomain + '/openid/userinfo/',
       headers: {
@@ -100,10 +133,18 @@ module.exports = function(User) {
         userInfo: userInfo
       };
 
-      cb(null, returnObj);
+      // send response object to loopback
+      callback(null, returnObj);
     });
   };
 
+  /**
+   * Console.logs the responses from an api call.
+   *
+   * @param error: any
+   * @param response: any
+   * @param body: any
+   */
   User.consoleInfo = function(error, response, body) {
     console.log('error:', error);
     console.log('statusCode:', response && response.statusCode);
