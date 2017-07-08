@@ -6,21 +6,21 @@ var api = supertest('http://localhost:3000');
 
 /**
  * Rover user info for testing purposes -
- *
- * Email: testrunner@hearstautos.com
- * Password: testrunner
  */
-
 var testEmail = 'testrunner@hearstautos.com';
 var testPassword = 'testrunner';
 
 describe('User: ', function() {
 
-  describe('Rover-User: ', function () {
+  var accessToken;
+
+  describe('Rover-Login: ', function () {
+
+    var roverEndpoint = '/v1/users/rover-login';
+    var refreshToken;
 
     it('should remind user to input password or email', function(done) {
-
-      api.post('/v1/users/rover-user')
+      api.post(roverEndpoint)
       .expect('Content-Type', /json/)
       .type('form')
       .send('email=')
@@ -30,19 +30,16 @@ describe('User: ', function() {
         if (err) {
           return done(err);
         }
-        var data = res.body['rover-user'];
-        var user = data['userInfo'];
+        var data = res.body['login_data'];
 
-        expect(data).to.equal('Email and or Password properties are missing');
-        expect(data.status).to.be.an('undefined');
-        expect(user).to.be.an('undefined');
+        expect(JSON.stringify(data)).to
+        .equal(JSON.stringify({status:'Please pass in either a valid rover email address & password OR a refresh token.'}));
         done();
       });
     });
 
-    it('should return authenticated user data', function(done) {
-
-      api.post('/v1/users/rover-user')
+    it('should authenticate user', function(done) {
+      api.post(roverEndpoint)
       .expect('Content-Type', /json/)
       .type('form')
       .send('email=' + testEmail)
@@ -52,19 +49,45 @@ describe('User: ', function() {
         if (err) {
           return done(err);
         }
-        var data = res.body['rover-user'];
-        var user = data['userInfo'];
+        var data = res.body['login_data'];
+
+        // set access token to be used in user info test
+        accessToken = data.user_token;
+        refreshToken = data.refresh_token;
 
         expect(data.status).to.equal('authenticated');
-        expect(user.first_name).to.equal('VTAX test');
-        expect(user.last_name).to.equal('runner');
-        expect(user.email).to.equal(testEmail);
+        expect(data.user_token.length).to.not.equal(0);
+        expect(data.refresh_token.length).to.not.equal(0);
+        expect(data.expires_in.length).to.not.equal(0);
+        done();
+      });
+    });
+
+    it('should refresh user token', function(done) {
+      api.post(roverEndpoint)
+      .expect('Content-Type', /json/)
+      .type('form')
+      .send('refreshToken=' + refreshToken)
+      .expect(200)
+      .end(function (err, res) {
+        if (err) {
+          return done(err);
+        }
+        var data = res.body['login_data'];
+
+        // set access token to be used in user info test
+        accessToken = data.user_token;
+
+        expect(data.status).to.equal('authenticated');
+        expect(data.user_token.length).to.not.equal(0);
+        expect(data.refresh_token.length).to.not.equal(0);
+        expect(data.expires_in.length).to.not.equal(0);
         done();
       });
     });
 
     it('should return "status: denied"', function(done) {
-      api.post('/v1/users/rover-user')
+      api.post(roverEndpoint)
       .expect('Content-Type', /json/)
       .type('form')
       .send('email=test@something.com')
@@ -74,11 +97,38 @@ describe('User: ', function() {
         if (err) {
           return done(err);
         }
-        var data = res.body['rover-user'];
-        var user = data['userInfo'];
+        var data = res.body['login_data'];
 
-        expect(data.status).to.equal('denied');
-        expect(user).to.be.an('undefined');
+        expect(JSON.stringify(data)).to.equal(JSON.stringify({status:'denied'}));
+        done();
+      });
+    });
+  });
+
+  describe('Rover-User', function () {
+
+    var roverEndpoint = '/v1/users/rover-user';
+
+    it('should return user data', function(done) {
+      api.post(roverEndpoint)
+      .expect('Content-Type', /json/)
+      .type('form')
+      .send('accessToken=' + accessToken)
+      .expect(200)
+      .end(function (err, res) {
+        if (err) {
+          return done(err);
+        }
+
+        var data = res.body['rover_user'];
+
+        expect(data.first_name).to.equal('VTAX test');
+        expect(data.last_name).to.equal('runner');
+        expect(data.email).to.equal(testEmail);
+
+        // clear access token
+        accessToken = '';
+
         done();
       });
     });

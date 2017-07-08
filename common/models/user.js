@@ -11,18 +11,31 @@ var clientId = config.clientId;
  * Email: testrunner@hearstautos.com
  * Password: testrunner
  */
-
 module.exports = function(User) {
 
   /**
-   * Initial method called when the /users/rover-user endpoint is posted
+   * /users/rover-login: authenticate user and return access tokens
    */
   User.remoteMethod('authenticateUser', {
+    description: 'Pass in email & password OR refresh token to get new rover access token',
     accepts: [
       { arg: 'email', type: 'string', description: 'rover email address' },
-      { arg: 'password', type: 'string', description: 'rover password' }
+      { arg: 'password', type: 'string', description: 'rover password' },
+      { arg: 'refreshToken', type: 'string', default: '', description: 'refresh token' }
     ],
-    returns: { arg: 'rover-user', type: 'any' },
+    returns: { arg: 'login_data', type: 'any' },
+    http: { path: '/rover-login', verb: 'post' }
+  });
+
+  /**
+   * /users/rover-user: Return user information
+   */
+  User.remoteMethod('retrieveUserInfo', {
+    description: 'Get rover user information with access token',
+    accepts: [
+      { arg: 'accessToken', type: 'string', description: 'rover access token', required: true }
+    ],
+    returns: { arg: 'rover_user', type: 'any' },
     http: { path: '/rover-user', verb: 'post' }
   });
 
@@ -34,33 +47,28 @@ module.exports = function(User) {
    *
    * @param email: string
    * @param password: string
+   * @param refreshToken: string
    * @param callback: function
    */
-  User.authenticateUser = function (email, password, callback) {
-    if (!email || !password) {
+  User.authenticateUser = function (email, password, refreshToken, callback) {
+    if (!(email || password) && !refreshToken) {
       // send response string to loopback notifying user they are missing
       // an email and or password
-      callback(null, 'Email and or Password properties are missing');
+      callback(null, {status: 'Please pass in either a valid rover email address & password OR a refresh token.'});
       return;
     }
 
-    // @todo handle refreshing token
-    var type = null;
-    var refreshToken = '';
-
-    var options = (type === 'refresh')
+    var options = (refreshToken)
       ? User.refreshTokenOptions(refreshToken)
       : User.newAccessTokenOptions(email, password);
 
     var params = {
       options: options,
       email: email,
-      password: password,
-      lbCallback: callback,
-      callback: User.retrieveUserInfo
+      password: password
     };
 
-    User.getAccessTokenFromRover(params);
+    User.getAccessTokenFromRover(params, callback);
   };
 
   /**
@@ -76,20 +84,29 @@ module.exports = function(User) {
    *  callback: function
    * }
    */
-  User.getAccessTokenFromRover = function(params) {
+  User.getAccessTokenFromRover = function(params, callback) {
     request.post(params.options, function (error, response, body) {
       User.consoleInfo(error, response, body);
 
       var data = JSON.parse(body);
       var accessToken = data.access_token;
+      var refreshToken = data.refresh_token;
+      var expiresIn = data.expires_in;
 
       if (!accessToken) {
         // send 'status: denied' response object to loopback
-        params.lbCallback(null, {status: 'denied'});
+        callback(null, {status: 'denied'});
         return;
       }
 
-      params.callback(accessToken, params.lbCallback);
+      var returnObj = {
+        status: 'authenticated',
+        user_token: accessToken,
+        refresh_token: refreshToken,
+        expires_in: expiresIn
+      };
+
+      callback(null, returnObj);
     });
   };
 
@@ -108,14 +125,8 @@ module.exports = function(User) {
 
       var userInfo = JSON.parse(body);
 
-      var returnObj = {
-        status: 'authenticated',
-        userToken: accessToken,
-        userInfo: userInfo
-      };
-
       // send response object to loopback
-      callback(null, returnObj);
+      callback(null, userInfo);
     });
   };
 
