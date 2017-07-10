@@ -8,7 +8,8 @@
   "scripts": {
     "lint": "eslint .",
     "start": "node .",
-    "posttest": "npm run lint && nsp check"
+    "posttest": "npm run lint && nsp check",
+    "test": "mocha --timeout 5000 --reporter nyan test/"
   },
   "dependencies": {
     "compression": "^1.0.3",
@@ -22,9 +23,14 @@
     "strong-error-handler": "^2.0.0"
   },
   "devDependencies": {
+    "chai": "^4.0.2",
     "eslint": "^3.17.1",
     "eslint-config-loopback": "^8.0.0",
-    "nsp": "^2.1.0"
+    "mocha": "^3.4.2",
+    "nsp": "^2.1.0",
+    "sinon": "^2.3.6",
+    "sinon-server": "^0.1.1",
+    "supertest": "^3.0.0"
   },
   "repository": {
     "type": "",

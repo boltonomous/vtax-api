@@ -9,9 +9,17 @@
   "properties": {
     "email": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "password": {
+      "type": "string",
+      "required": false
+    },
+    "refreshToken": {
+      "type": "string",
+      "required": false
+    },
+    "accessToken": {
       "type": "string",
       "required": true
     }
