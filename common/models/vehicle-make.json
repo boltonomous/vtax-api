@@ -1,5 +1,5 @@
 {
-  "name": "vehicle_makes",
+  "name": "vehicle_make",
   "plural": "makes",
   "base": "PersistedModel",
   "idInjection": false,

@@ -1,6 +1,6 @@
 {
   "db": {
-    "url": "mongodb://localhost:27017/?3t.uriVersion=2&3t.connection.name=Localhost+-+imported+on+Aug+29%2C+2016&3t.connectionMode=direct&readPreference=primary",
+    "url": "mongodb://vtaxusr:RMhr25rHQX@ds155162-a0.mlab.com:55162,ds155162-a1.mlab.com:55162/vtax?replicaSet=rs-ds155162",
     "name": "db",
     "connector": "loopback-connector-mongodb"
   }

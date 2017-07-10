@@ -32,7 +32,7 @@
     "dataSource": "db",
     "public": false
   },
-  "vehicle_makes": {
+  "vehicle_make": {
     "dataSource": "db",
     "public": true
   },
@@ -45,6 +45,10 @@
     "public": false
   },
   "user": {
+    "dataSource": "db",
+    "public": true
+  },
+  "vehicle_test": {
     "dataSource": "db",
     "public": true
   }
